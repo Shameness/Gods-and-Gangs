@@ -11,6 +11,10 @@ function Vector2.new(x,y)
   return setmetatable(vector2, Vector2_mt)
 end
 
+function Vector2_mt.__sub(a, b)
+  return Vector2.new(a.x-b.x,a.y-b.y)
+end
+
 
 ------- Health -------
 Health = {__class = "Health"}
@@ -81,9 +85,7 @@ function TeamTag(team)
   return setmetatable(teamTag, TeamTag_mt)
 end
 
-for i = 1,10 do
-  print(i)
-end
+
 
 
 
