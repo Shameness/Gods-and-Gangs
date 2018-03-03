@@ -21,27 +21,25 @@ end
 
 
 -------- TotalAI --------
-AI = {}
+AI = {LeftTeam = 1, RightTeam = -1}
 AI_mt = {__index = AI}
 
 function AI.new()
   local ai = {}
   ai.is_applicator = true
   ai.componenttypes = {"Vector2", "Sentient", "Health", "Movement", "Offensive", "TeamTag"}
-  ai.LeftTeam = 1
-  ai.RightTeam = -1
   return setmetatable(ai, AI_mt)
 end
 
 
 function AI.inRange(pos, v, radius)
-  return radius >= math.sqrt((math.pow(pos.x-v.x, 2) + math.pow(pos.y - v.x, 2))
+  return radius >= math.sqrt((math.pow(pos.x-v.x, 2) + math.pow(pos.y - v.x, 2)))
 end
 
 function AI.process(world, components)
   for comps in coroutine.wrap(components) do
     local vector2, sentient, health, movement, offensive, teamTag = unpack(comps)
-
+    local falledin = false;
     -- step 1 --
     if health.hp < 20 then
       --==TO:DO==-- Flee
@@ -57,14 +55,13 @@ function AI.process(world, components)
 
     -- step 3 a --
     --::checkSightRange::
-    local falledin = false;
 
-    for k,v in next,world.enemies[team] do
 
-      if not falledin do
+    for k,v in next,world.enemies[teamTag.team] do
+      if not falledin then
 
-        if math.abs(pos.x - v.x) <= radius then
-          if AI.inRange(pos, v, radius) then
+        if math.abs(vector2.x - v.x) <= sentient.sightRadius then
+          if AI.inRange(vector2, v, radius) then
              res = world.entitiesLookup[v]
              break
            end
@@ -79,26 +76,25 @@ function AI.process(world, components)
         break
       end
     end
-
     if res ~= nil then
       --update it as target
       sentient.target = res
     else
-      --==TO:DO==-- go forward
-      sentient.state = "goForward"
-      vector2.x = vector2.x + (love.timer.getDelta() * (ai[team] * movement.moveSpeed))
+      --sentient.state = "goForward"
+      vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team] * movement.moveSpeed))
+      goto continue -- Important
     end
 
     -- step 3 b --
     ::checkAttackRange::
-    local targetPos = world:getComp(target, "Vector2")
-
-    if AI.inRange(Vector2, targetPos, offensive.attackRange) then
+    local targetPos = world:getComp(sentient.target, "Vector2")
+    print(targetPos)
+    if false then
       --==TO:DO==-- Attack
 
     else
-      --==TO:DO==-- Move to Target
-      sentient.state = "goToTarget"
+      --sentient.state = "goToTarget"
+      vector2 = vector2 + ((targetPos - vector2):normalize() * movement.moveSpeed * love.timer.getDelta())
     end
     ::continue::
   end -- for loop

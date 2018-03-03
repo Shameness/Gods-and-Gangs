@@ -15,6 +15,18 @@ function Vector2_mt.__sub(a, b)
   return Vector2.new(a.x-b.x,a.y-b.y)
 end
 
+function Vector2_mt.__mul(a, b)
+  return Vector2.new(a.x*b,a.y*b)
+end
+
+function Vector2:normalize()
+  local div = self.x + self.y
+  local x = self.x / div
+  local y = self.y / div
+  return Vector2.new(x,y)
+end
+
+
 
 ------- Health -------
 Health = {__class = "Health"}
@@ -45,7 +57,7 @@ Sentient_mt = {__index = Sentient}
 function Sentient.new(sightRadius)
   local sentient = {}
   sentient.sightRadius = sightRadius
-  sentient.target = {}
+  sentient.target = nil
   sentient.state = ""
   return setmetatable(sentient, Sentient_mt)
 end
@@ -66,7 +78,7 @@ end
 Offensive = {__class= "Offensive"}
 Offensive_mt = {__index = Offensive}
 
-function Offensive(attackPower, attackRange, attackSpeed)
+function Offensive.new(attackPower, attackRange, attackSpeed)
   local offensive = {}
   offensive.attackPower = attackPower
   offensive.attackRange = attackRange
@@ -78,7 +90,7 @@ end
 TeamTag = {__class= "TeamTag"}
 TeamTag_mt = {__index = TeamTag}
 
-function TeamTag(team)
+function TeamTag.new(team)
   local teamTag = {}
   teamTag.isLeftTeam = (team == 'LeftTeam')
   teamTag.team = team
