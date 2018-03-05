@@ -15,7 +15,6 @@ function Drawer.process(world, components)
   for comps in coroutine.wrap(components) do
     local vector2, sprite = unpack(comps)
     love.graphics.draw((sprite.image), vector2.x, vector2.y)
-    -- print(sprite.image, vector2.x, vector2.y)
   end
 end
 
@@ -37,9 +36,11 @@ function AI.inRange(pos, v, radius)
 end
 
 function AI.process(world, components)
+  world:sort()
   for comps in coroutine.wrap(components) do
     local vector2, sentient, health, movement, offensive, teamTag = unpack(comps)
     local falledin = false;
+    local searchResult = nil
     -- step 1 --
     if health.hp < 20 then
       --==TO:DO==-- Flee
@@ -61,24 +62,24 @@ function AI.process(world, components)
       if not falledin then
 
         if math.abs(vector2.x - v.x) <= sentient.sightRadius then
-          if AI.inRange(vector2, v, radius) then
-             res = world.entitiesLookup[v]
+          if AI.inRange(vector2, v, sentient.sightRadius) then
+             searchResult = world.entitiesLookup[v]
              break
            end
           falledin = true
         else
-          res = nil
+          searchResult = nil
           break
         end
 
-      elseif AI.inRange(pos, v, radius) then
-        res = world.entitiesLookup[v]
+      elseif AI.inRange(vector2, v, sentient.sightRadius) then
+        searchResult = world.entitiesLookup[v]
         break
       end
     end
-    if res ~= nil then
+    if searchResult ~= nil then
       --update it as target
-      sentient.target = res
+      sentient.target = searchResult
     else
       --sentient.state = "goForward"
       vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team] * movement.moveSpeed))
@@ -87,14 +88,17 @@ function AI.process(world, components)
 
     -- step 3 b --
     ::checkAttackRange::
+
     local targetPos = world:getComp(sentient.target, "Vector2")
-    print(targetPos)
+
     if false then
       --==TO:DO==-- Attack
-
+      sentient.state = "hi"
     else
       --sentient.state = "goToTarget"
       vector2 = vector2 + ((targetPos - vector2):normalize() * movement.moveSpeed * love.timer.getDelta())
+      --vector2.x = res.x
+      --vector2.y = res.y
     end
     ::continue::
   end -- for loop

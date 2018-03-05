@@ -31,11 +31,10 @@ function loadWorld()
   myWorld.RightTeam = {}
   -- entities
 --new(world,x,y,image,hp,sightRadius,moveSpeed,attackPower,attackRange,attackSpeed,team)
-
   for i = 1,LEFT_SOLDIER_COUNT do
     local hp = 25
     local sightRadius = 6
-    local moveSpeed = math.random(3, 6)
+    local moveSpeed = math.random(20,25)
     local attackPower = math.random(3, 6)
     local attackRange = 1
     local attackSpeed = math.random()*2
@@ -52,7 +51,7 @@ function loadWorld()
   for i = 1,RIGT_SOLDIER_COUNT do
     local hp = 25
     local sightRadius = 6
-    local moveSpeed = math.random(3, 6)
+    local moveSpeed = math.random(20,25)
     local attackPower = math.random(3, 6)
     local attackRange = 1
     local attackSpeed = math.random()*2
@@ -68,16 +67,15 @@ function loadWorld()
   myWorld.allies.LeftTeam = myWorld.LeftTeam
   myWorld.allies.RightTeam = myWorld.RightTeam
 
-
   function myWorld:sort()
     table.sort(self.LeftTeam, function(a, b) return a.x > b.x end)
     table.sort(self.RightTeam, function(a, b) return a.x < b.x end)
   end
 
-
-
   function myWorld:getComp(target, compCls)
     return self.components[compCls][target]
   end
+
+
 
 end

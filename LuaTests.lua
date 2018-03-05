@@ -26,5 +26,7 @@ end
 
 klm = Vector2.new(3,1)
 abc = (klm*3):normalize()*3
+dem = klm - abc
+print(dem.x , dem.y)
 print(klm.x, klm.y)
 print(abc.x, abc.y)
