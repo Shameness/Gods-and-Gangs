@@ -23,10 +23,14 @@ function Vector2_mt.__mul(a, b)
   return Vector2.new(a.x*b,a.y*b)
 end
 
+function Vector2:length()
+  return (self.x^2 + self.y^2 )^0.5
+end
+
 function Vector2:normalize()
-  local div = self.x + self.y
-  local x = self.x / div
-  local y = self.y / div
+  local len = self:length()
+  local x = self.x / len
+  local y = self.y / len
   return Vector2.new(x,y)
 end
 
@@ -56,7 +60,7 @@ end
 
 ------- Sentient -------
 Sentient = {__class = "Sentient"}
-Sentient_mt = {__index = Sentient}
+Sentient_mt = {__index = Sentient, __mode = "v"}
 
 function Sentient.new(sightRadius)
   local sentient = {}

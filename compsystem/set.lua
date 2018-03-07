@@ -31,6 +31,11 @@ function Set:add(e)
   return self
 end
 
+function Set:remove(e)
+  if e ~= nil then self[e] = nil end
+  return self
+end
+
 function Set:len()
   local num = 0
   for _ in pairs(self) do

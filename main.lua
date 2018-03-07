@@ -10,4 +10,6 @@ end
 
 function love.draw()
   myWorld:process()
+
+  love.graphics.print(love.timer.getFPS(), 100, 100)
 end

@@ -2,8 +2,17 @@ local SetModule = require "compsystem.set"
 
 ----------- Entity -----------
 Entity = {}
-setmetatable(Entity, Entity)
-Entity_mt = { __index = Entity}
+--setmetatable(Entity, Entity)
+Entity_mt = {__index = Entity_mt}
+
+function Entity_mt:__index(key)
+  --Gets Component
+
+  local ctype = self._world._componenttypes[key]
+  assert(ctype, ( "doesn't has attribute " .. key))
+  return self._world.components[ctype][self]
+end
+
 --Entity Init
 function Entity.init(world)
   assert(world.__type == 'World', "world must be a World")
@@ -19,13 +28,13 @@ function Entity_mt.__tostring(v)
   return("<Entity: " .. v._id .. ">")
 end
 
-function Entity:__index(key)
-  --Gets Component
-
-  ctype = self._world._componenttypes[key]
-  assert(ctype, (self .. "doesn't has attribute " .. key))
-  return self._world.components[ctype][self]
-end
+-- function Entity:__index(key)
+--   --Gets Component
+--
+--   local ctype = self._world._componenttypes[key]
+--   assert(ctype, (self .. "doesn't has attribute " .. key))
+--   return self._world.components[ctype][self]
+-- end
 
 function Entity_mt:__newindex (key, value)
   clstype = value.__class
@@ -37,14 +46,14 @@ function Entity_mt:__newindex (key, value)
   self._world.entitiesLookup[value] = self --this is additional
 end
 --deletes compoenent
-function Entity:delComp(key)
+function Entity_mt:delComp(key)
   ctype = self._world._componenttypes[key]
   assert(ctype, (self .. "doesn't has attribute " .. key))
-  --self._world.components[ctype][self] = nil
+  self._world.components[ctype][self] = nil
   assert(false,"Not implemented")
 end
 
-function Entity:delete()
+function Entity_mt:delete()
   self.world.delete(self)
 end
 
@@ -101,8 +110,11 @@ function World:add_componenttype(classtype)
   self._componenttypes[string.lower(classtype)] = classtype
 end
 
-function World:delete (entity)
-  assert(false,"Not implemented")
+function World:delete (entity)--(entity)
+  for k,v in next,self.components do
+    v[entity] = nil
+  end
+  self.entities:remove(entity)
 end
 
 function World:delete_entities(entities)
