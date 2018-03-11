@@ -57,6 +57,16 @@ function Sprite.new(image)
   return setmetatable(sprite, Sprite_mt)
 end
 
+------- AnimatingSprite -------
+AnimatingSprite = {__class = "AnimatingSprite"}
+AnimatingSprite_mt = {__index = AnimatingSprite}
+
+function AnimatingSprite.new()
+  local animSprite = {}
+  animSprite.image = image
+  return setmetatable(animSprite, AnimatingSprite_mt)
+end
+
 
 ------- Sentient -------
 Sentient = {__class = "Sentient"}
@@ -100,7 +110,7 @@ TeamTag_mt = {__index = TeamTag}
 
 function TeamTag.new(team)
   local teamTag = {}
-  teamTag.isLeftTeam = (team == 'LeftTeam')
+  teamTag.isLeftTeam = (team == 'LeftTeam') --not used
   teamTag.team = team
   return setmetatable(teamTag, TeamTag_mt)
 end

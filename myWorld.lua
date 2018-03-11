@@ -3,6 +3,7 @@ local EntitiesModule = require "Entities"
 local SystemsModule = require "Systems"
 
 
+
 local LEFT_SOLDIER_COUNT = 10
 local RIGHT_SOLDIER_COUNT = 10
 
@@ -26,17 +27,11 @@ function loadWorld()
   -- myWorld.RightTeamEntities = {}
   myWorld.entitiesLookup = {}
   myWorld.enemies = {}
-  myWorld.allies = {}
+  myWorld.allies = {} --not used
   myWorld.LeftTeam = {}
   myWorld.RightTeam = {}
-  --weakreference all
-  setmetatable(myWorld.entitiesLookup, {__mode = "v"})
-  setmetatable(myWorld.enemies, {__mode = "v"})
-  setmetatable(myWorld.allies, {__mode = "v"})
-  setmetatable(myWorld.LeftTeam, {__mode = "v"})
-  setmetatable(myWorld.RightTeam, {__mode = "v"})
+  
   -- entities
---new(world,x,y,image,hp,sightRadius,moveSpeed,attackPower,attackRange,attackSpeed,team)
   local soldierComptypes = {"Vector2","Sprite","Health","Sentient","Movement","Offensive","TeamTag"}
 
   myWorld.testshit = nil
@@ -91,12 +86,12 @@ function loadWorld()
 
   function myWorld:killEntity (entity)
     --Remove vector2 of entity from team lookup table
-    -- for k,v in next,self[entity.teamtag.team]do
-    --   if v == entity.vector2 then
-    --     table.remove(self[entity.teamtag.team],k)
-    --     break
-    --   end
-    -- end
+    for k,v in next,self[entity.teamtag.team]do
+      if v == entity.vector2 then
+        table.remove(self[entity.teamtag.team],k)
+        break
+      end
+    end
     --Remove Values from lookup table
     for k,comptype in next,soldierComptypes do
       self.entitiesLookup[self.components[comptype][entity]] = nil
@@ -114,9 +109,6 @@ function loadWorld()
     end
   end
 
-  print(#myWorld.components)
-  myWorld:killEntity(myWorld.testshit)
-  i = 0
 
 
 end

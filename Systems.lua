@@ -62,9 +62,7 @@ function AI.process(world, components)
     end
 
     -- step 3 a --
-    --::checkSightRange::
-
-
+    --::checkSightRange::--
     for k,v in next,world.enemies[teamTag.team] do
       if not falledin then
         if math.abs(vector2.x - v.x) <= sentient.sightRadius then
