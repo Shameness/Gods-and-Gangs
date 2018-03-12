@@ -26,6 +26,7 @@ function loadWorld()
   -- myWorld.LeftTeamEntities = {}
   -- myWorld.RightTeamEntities = {}
   myWorld.entitiesLookup = {}
+  myWorld.entityById = {}
   myWorld.enemies = {}
   myWorld.allies = {} --not used
   myWorld.LeftTeam = {}
@@ -86,6 +87,7 @@ function loadWorld()
 
   function myWorld:killEntity (entity)
     --Remove vector2 of entity from team lookup table
+    self.entityById[entity._id] = nil
     for k,v in next,self[entity.teamtag.team]do
       if v == entity.vector2 then
         table.remove(self[entity.teamtag.team],k)
@@ -103,12 +105,13 @@ function loadWorld()
 
   function myWorld:damageEntity (entity, damage)
     local health = self:getComp(entity,"Health")
+    local targetIsKilled = false
     health.hp = health.hp - damage
     if health.hp <= 0 then
       self:killEntity(entity)
-      return true
+      targetIsKilled = true
     end
-    return false
+    return targetIsKilled
   end
 
 

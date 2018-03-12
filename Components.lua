@@ -111,12 +111,12 @@ end
 
 ------- Sentient -------
 Sentient = {__class = "Sentient"}
-Sentient_mt = {__index = Sentient}--, __mode = "v"}
+Sentient_mt = {__index = Sentient, __mode = "v"}
 
 function Sentient.new(sightRadius)
   local sentient = {}
   sentient.sightRadius = sightRadius
-  sentient.target = nil
+  sentient.targetId = nil
   sentient.predators = {}
   sentient.state = ""
   return setmetatable(sentient, Sentient_mt)

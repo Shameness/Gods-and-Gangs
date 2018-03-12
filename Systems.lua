@@ -60,44 +60,31 @@ function AI.process(world, components)
   world:sort()
   for comps in coroutine.wrap(components) do
     local vector2, sentient, health, movement, offensive, teamTag = unpack(comps)
-
-    if not(vector2 or sentient or health or movement or offensive or teamTag) then
-      errorcount = errorcount + 1
-      print(errorcount)
+    if #comps == 0 then
       goto continue
     end
     local falledin = false;
     local searchResult = nil
     -- step 1 --
-    if health.hp < 20 then
+    if health.hp == 2000 then
       --==TO:DO==-- Flee
       goto continue
     end
 
     -- step 2 --
     --::checkHasTarget::
-    if sentient.target then
+    if sentient.targetId and world.entityById[sentient.targetId] then
+          local target = world.entityById[sentient.targetId]
+          local targetPos = target.vector2
 
-          local targetPos = sentient.target.vector2
-          if targetPos == nil then
-            neturalCount = neturalCount + 1
-            print("~null~",neturalCount)
-            print(world.entities[sentient.target])
-            sentient.target = nil
-            goto continue
-          end
           if AI.inRange(vector2,targetPos,offensive.attackRange) then
 
-            targetKilled = world:damageEntity(sentient.target, offensive.attackPower)
+            targetKilled = world:damageEntity(target, offensive.attackPower)
 
             if targetKilled then
               killeyCount = killeyCount + 1
-              print("killey", killeyCount)
-              -- for k,v in next, sentient.target.sentient.predators do
-              --   v.sentient.target = nil
-              -- end
-              sentient.target = nil
-
+              sentient.targetId = nil
+              target = nil
             end
           else
             --sentient.state = "goToTarget"
@@ -129,9 +116,10 @@ function AI.process(world, components)
           break
         end
       end
+
       if searchResult ~= nil then
-        --update it as target
-        sentient.target = searchResult
+        --update targetId with result
+        sentient.targetId = searchResult
 
       else
         --sentient.state = "goForward"

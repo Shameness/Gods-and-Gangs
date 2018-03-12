@@ -21,8 +21,10 @@ function Entity.init(world)
   entity._id = string.sub(tostring(entity), 8)
   world.entities.add(world.entities,entity)
   setmetatable(entity, Entity_mt)
+  world.entityById[""..entity._id] = self --my addition for lookup table
   return entity
 end
+
 
 function Entity_mt.__tostring(v)
   return("<Entity: " .. v._id .. ">")
@@ -43,7 +45,8 @@ function Entity_mt:__newindex (key, value)
     self._world.add_componenttype(self._world,clstype)
   end
   self._world.components[clstype][self] = value
-  self._world.entitiesLookup[value] = self --this is additional
+  self._world.entitiesLookup[value] = ""..self._id --this is additional
+  self._world.entityById[""..self._id] = self
 end
 --deletes compoenent
 function Entity_mt:delComp(key)
