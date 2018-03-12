@@ -18,6 +18,23 @@ function Drawer.process(world, components)
   end
 end
 
+-------- Animator --------
+Animator = {}
+Animator_mt = {__index = Animator}
+
+function Animator.new()
+  local animator = {}
+  animator.is_applicator = true
+  animator.componenttypes = {"Vector2", "AnimatingSprite"}
+  return setmetatable(animator, Animator_mt)
+end
+
+function Animator.process(world, components)
+  for comps in coroutine.wrap(components) do
+    local vector2, animSprite unpack(comps)
+    love.graphics.draw()
+  end
+end
 
 -------- TotalAI --------
 AI = {LeftTeam = 1, RightTeam = -1}
@@ -37,10 +54,13 @@ function AI.inRange(pos, v, radius)
 end
 
 local errorcount = 0
+local killeyCount = 0
+local neturalCount = 0
 function AI.process(world, components)
   world:sort()
   for comps in coroutine.wrap(components) do
     local vector2, sentient, health, movement, offensive, teamTag = unpack(comps)
+
     if not(vector2 or sentient or health or movement or offensive or teamTag) then
       errorcount = errorcount + 1
       print(errorcount)
@@ -56,63 +76,73 @@ function AI.process(world, components)
 
     -- step 2 --
     --::checkHasTarget::
-    if sentient.target ~= nil then
-      --step3 or step 4 ?
-      goto checkAttackRange
-    end
+    if sentient.target then
+
+          local targetPos = sentient.target.vector2
+          if targetPos == nil then
+            neturalCount = neturalCount + 1
+            print("~null~",neturalCount)
+            print(world.entities[sentient.target])
+            sentient.target = nil
+            goto continue
+          end
+          if AI.inRange(vector2,targetPos,offensive.attackRange) then
+
+            targetKilled = world:damageEntity(sentient.target, offensive.attackPower)
+
+            if targetKilled then
+              killeyCount = killeyCount + 1
+              print("killey", killeyCount)
+              -- for k,v in next, sentient.target.sentient.predators do
+              --   v.sentient.target = nil
+              -- end
+              sentient.target = nil
+
+            end
+          else
+            --sentient.state = "goToTarget"
+            res = vector2 + ((targetPos - vector2):normalize() * movement.moveSpeed * love.timer.getDelta())
+            vector2.x = res.x
+            vector2.y = res.y
+
+
+          end
+    else
 
     -- step 3 a --
     --::checkSightRange::--
-    for k,v in next,world.enemies[teamTag.team] do
-      if not falledin then
-        if math.abs(vector2.x - v.x) <= sentient.sightRadius then
-          if AI.inRange(vector2, v, sentient.sightRadius) then
-             searchResult = world.entitiesLookup[v]
-             break
-           end
-          falledin = true--no break:)
-        else
-          searchResult = nil
+      for k,v in next,world.enemies[teamTag.team] do
+        if not falledin then
+          if math.abs(vector2.x - v.x) <= sentient.sightRadius then
+            if AI.inRange(vector2, v, sentient.sightRadius) then
+               searchResult = world.entitiesLookup[v]
+               break
+             end
+            falledin = true--no break:)
+          else
+            searchResult = nil
+            break
+          end
+
+        elseif AI.inRange(vector2, v, sentient.sightRadius) then
+          searchResult = world.entitiesLookup[v]
           break
         end
+      end
+      if searchResult ~= nil then
+        --update it as target
+        sentient.target = searchResult
 
-      elseif AI.inRange(vector2, v, sentient.sightRadius) then
-        searchResult = world.entitiesLookup[v]
-        break
+      else
+        --sentient.state = "goForward"
+        --::GO FORWARD::--
+        vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team] * movement.moveSpeed))
+        --goto continue -- Important
       end
     end
-    if searchResult ~= nil then
-      --update it as target
-      sentient.target = searchResult
-    else
-      --sentient.state = "goForward"
-      --::GO FORWARD::--
-      vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team] * movement.moveSpeed))
-      goto continue -- Important
-    end
-
     -- step 3 b --
-    ::checkAttackRange::
+    --::checkAttackRange::
 
-    local targetPos = world:getComp(sentient.target, "Vector2")
-    if targetPos == nil then
-      sentient.target = nil
-      goto continue
-    end
-    if AI.inRange(vector2,targetPos,offensive.attackRange) then
-
-      world:damageEntity(sentient.target, offensive.attackPower)
-    else
-      --sentient.state = "goToTarget"
-      res = vector2 + ((targetPos - vector2):normalize() * movement.moveSpeed * love.timer.getDelta())
-      if world.entitiesLookup[vector2] == world.testshit then
-        --print((targetPos - vector2):normalize().x,(targetPos - vector2):normalize().y)
-      end
-      vector2.x = res.x
-      vector2.y = res.y
-
-
-    end
     ::continue::
   end -- for loop
 

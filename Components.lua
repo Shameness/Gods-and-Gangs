@@ -60,22 +60,64 @@ end
 ------- AnimatingSprite -------
 AnimatingSprite = {__class = "AnimatingSprite"}
 AnimatingSprite_mt = {__index = AnimatingSprite}
+--[[
+keys protocol:
+keys is table that has
+ "String" keys
+ "table" values
+example: keys.idle = {0}
+example: keys.walk = {1,2,3,4,5,6}
+values are table that have
+index as keys
+int as values which are frame index(ex) in the atlas
+atlas= holds all images in one image. now we use it to hold frames
+frame= one of the image of animation
 
-function AnimatingSprite.new()
+states are the name of the table keys in the keys (sorry for bad naming)
+]]
+function AnimatingSprite.new(atlas,keys,states)
   local animSprite = {}
-  animSprite.image = image
+  animSprite.atlas = atlas
+  animSprite.keys = keys
+  animSprite.states = states
+  animSprite.currentFrame = 1
+  animSprite.currentState = states[1]
   return setmetatable(animSprite, AnimatingSprite_mt)
 end
 
+------- Armament --------
+--[[
+Represent Equipments
+]]
+Armament = {__class = "Armament"}
+Armament_mt = {__index = Armament }
+
+function Armament.new(top, bottom, weapon)
+  armament = {}
+  armament.top = top
+  armament.bottom = bottom
+  armament.weapon = weapon
+  return setmetatable(armament, Armament_mt)
+end
+
+------- Equipment -------
+Equipment = {__class = "Equipment"}
+Equipment_mt = {__index = Equipment}
+
+function Equipment.new()
+  local equipment = {}
+  return setmetatable(equipment, Equipment_mt)
+end
 
 ------- Sentient -------
 Sentient = {__class = "Sentient"}
-Sentient_mt = {__index = Sentient, __mode = "v"}
+Sentient_mt = {__index = Sentient}--, __mode = "v"}
 
 function Sentient.new(sightRadius)
   local sentient = {}
   sentient.sightRadius = sightRadius
   sentient.target = nil
+  sentient.predators = {}
   sentient.state = ""
   return setmetatable(sentient, Sentient_mt)
 end

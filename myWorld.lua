@@ -30,7 +30,7 @@ function loadWorld()
   myWorld.allies = {} --not used
   myWorld.LeftTeam = {}
   myWorld.RightTeam = {}
-  
+
   -- entities
   local soldierComptypes = {"Vector2","Sprite","Health","Sentient","Movement","Offensive","TeamTag"}
 
@@ -106,7 +106,9 @@ function loadWorld()
     health.hp = health.hp - damage
     if health.hp <= 0 then
       self:killEntity(entity)
+      return true
     end
+    return false
   end
 
 
