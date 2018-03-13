@@ -12,6 +12,6 @@ function love.update(dt)
 end
 
 function love.draw()
-
-  myWorld:process()
+    myWorld:process()
+    love.graphics.print(love.timer.getFPS(),100,100)
 end

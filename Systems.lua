@@ -46,8 +46,6 @@ function Animator.process(world, components)
       animSprite.delta = animSprite.delta - animSprite.speed
       animSprite.currentFrame = animSprite.currentFrame + 1
     end
-    print(animSprite.keys[state.currentState])
-    print(animSprite.currentFrame)
 --    print(animSprite.keys[state.currentState][animSprite.currentFrame])
     local frameQuad = animSprite.keys[state.currentState][animSprite.currentFrame]
     if not frameQuad then

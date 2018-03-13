@@ -3,10 +3,12 @@ local EntitiesModule = require "Entities"
 local SystemsModule = require "Systems"
 local AnimationsModule = require "Animations"
 
-
-local LEFT_SOLDIER_COUNT = 30
-local RIGHT_SOLDIER_COUNT = 30
-
+local COLUMN_SIZE = 28
+local LEFT_SOLDIER_COUNT = COLUMN_SIZE*5
+local RIGHT_SOLDIER_COUNT = COLUMN_SIZE*5
+--local ROW_SIZE = COLUMN_SIZE
+local Y_GAP = 20
+local X_GAP = 30
 function loadWorld()
   -- ebs variables --
   -- world
@@ -38,16 +40,20 @@ function loadWorld()
   local soldierComptypes = {"Vector2","AnimatingSprite","Health","Sentient","Movement","Offensive","TeamTag","State"}
 
   myWorld.testshit = nil
-  for i = 1,LEFT_SOLDIER_COUNT do
+  for i = 0,LEFT_SOLDIER_COUNT-1 do
     local hp = 25
-    local sightRadius = 500
+    local sightRadius = 100
     local moveSpeed = math.random(20,30)
     local attackPower = math.random()
     local attackRange = 1
     local attackSpeed = math.random()*2
     local team = "LeftTeam"
+    local x =100+(math.floor(i/COLUMN_SIZE)*X_GAP)
+    local y = ((i%COLUMN_SIZE)*Y_GAP)
+    print(x,y)
     --new instance
-    local soldier = Soldier.new( myWorld, 100+(math.floor(i/10)*20),(i%10*20), soldAnim, hp, sightRadius, moveSpeed,
+    local soldier = Soldier.new( myWorld,x,y,
+     soldAnim, hp, sightRadius, moveSpeed,
     attackPower,attackRange,attackSpeed,team )
     -- add its position to lookup table
     if i == 1 then myWorld.testshit = soldier end
@@ -57,15 +63,18 @@ function loadWorld()
   end
 
 
-  for i = 1,RIGHT_SOLDIER_COUNT do
+  for i = 0,RIGHT_SOLDIER_COUNT-1 do
     local hp = 25
-    local sightRadius = 500
+    local sightRadius = 100
     local moveSpeed = math.random(20,30)
     local attackPower = math.random()
     local attackRange = 1
     local attackSpeed = math.random()*2
     local team = "RightTeam"
-    local soldier = Soldier.new(myWorld, 680,(i%10*20), soldAnim,hp,sightRadius,moveSpeed,
+    local x = 680-(math.floor(i/COLUMN_SIZE)*X_GAP)
+    local y = ((i%COLUMN_SIZE)*Y_GAP)
+    local soldier = Soldier.new(myWorld,x,y,
+    soldAnim,hp,sightRadius,moveSpeed,
    attackPower,attackRange,attackSpeed,team  )
      table.insert(myWorld.RightTeam, soldier.vector2)
      -- table.insert(RightTeamEntities, soldier)
