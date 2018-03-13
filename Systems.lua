@@ -25,14 +25,38 @@ Animator_mt = {__index = Animator}
 function Animator.new()
   local animator = {}
   animator.is_applicator = true
-  animator.componenttypes = {"Vector2", "AnimatingSprite"}
+  animator.componenttypes = {"Vector2", "AnimatingSprite","State","TeamTag"}
   return setmetatable(animator, Animator_mt)
 end
 
 function Animator.process(world, components)
   for comps in coroutine.wrap(components) do
-    local vector2, animSprite unpack(comps)
-    love.graphics.draw()
+    local vector2, animSprite, state,teamTag = unpack(comps)
+    if state.currentState ~= state.previousState then
+      animSprite.currentFrame = 1
+    end
+    for k,v in next, animSprite.keys do
+      --print(k,v)
+      for l,m in next, v do
+        --print(l,m)
+      end
+    end
+    animSprite.delta = animSprite.delta + love.timer.getDelta()
+    if animSprite.delta > animSprite.speed then
+      animSprite.delta = animSprite.delta - animSprite.speed
+      animSprite.currentFrame = animSprite.currentFrame + 1
+    end
+    print(animSprite.keys[state.currentState])
+    print(animSprite.currentFrame)
+--    print(animSprite.keys[state.currentState][animSprite.currentFrame])
+    local frameQuad = animSprite.keys[state.currentState][animSprite.currentFrame]
+    if not frameQuad then
+      animSprite.currentFrame = 1
+      frameQuad = animSprite.keys[state.currentState][animSprite.currentFrame]
+    end
+    local flip = AI[teamTag.team]
+    local trans = (flip/1) * 48
+    love.graphics.draw(animSprite.atlas, frameQuad, vector2.x, vector2.y,0,flip,0.8,trans+16)
   end
 end
 
@@ -43,7 +67,7 @@ AI_mt = {__index = AI}
 function AI.new()
   local ai = {}
   ai.is_applicator = true
-  ai.componenttypes = {"Vector2", "Sentient", "Health", "Movement", "Offensive", "TeamTag"}
+  ai.componenttypes = {"Vector2", "Sentient", "Health", "Movement", "Offensive", "TeamTag","State"}
   return setmetatable(ai, AI_mt)
 end
 
@@ -59,16 +83,17 @@ local neturalCount = 0
 function AI.process(world, components)
   world:sort()
   for comps in coroutine.wrap(components) do
-    local vector2, sentient, health, movement, offensive, teamTag = unpack(comps)
+    local vector2, sentient, health, movement, offensive, teamTag, state = unpack(comps)
     if #comps == 0 then
       goto continue --Ducth Tape
     end
     local falledin = false;
     local searchResult = nil
     -- step 1 --
-    if sentient.canFlee and health.hp <= 6 then
+    if sentient.canFlee and health.hp > 600 then
       --Flee
       vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team]* -1 * movement.moveSpeed))
+      state:set("walking")
       goto continue
     end
 
@@ -79,8 +104,8 @@ function AI.process(world, components)
           local targetPos = target.vector2
 
           if AI.inRange(vector2,targetPos,offensive.attackRange) then
-
-            targetKilled = world:damageEntity(target, offensive.attackPower)
+            state:set("idle")
+            targetKilled = world:damageEntity(target, offensive.attackPower*offensive.attackSpeed)
 
             if targetKilled then
               killeyCount = killeyCount + 1
@@ -88,7 +113,7 @@ function AI.process(world, components)
               target = nil
             end
           else
-            --sentient.state = "goToTarget"
+            state:set("walking")
             res = vector2 + ((targetPos - vector2):normalize() * movement.moveSpeed * love.timer.getDelta())
             vector2.x = res.x
             vector2.y = res.y
@@ -123,7 +148,7 @@ function AI.process(world, components)
         sentient.targetId = searchResult
 
       else
-        --sentient.state = "goForward"
+        state:set("walking")
         --::GO FORWARD::--
         vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team] * movement.moveSpeed))
         --goto continue -- Important

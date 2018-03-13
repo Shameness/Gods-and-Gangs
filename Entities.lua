@@ -4,16 +4,18 @@ local ComponentsModule = require "Components"
 Soldier = {}
 --Soldier_mt = {__index = Soldier}
 
-function Soldier.new(world,x,y,image,hp,sightRadius,moveSpeed,attackPower,attackRange,attackSpeed,team)
+function Soldier.new(world,x,y,animationPack,hp,sightRadius,moveSpeed,attackPower,attackRange,attackSpeed,team)
   --comps
+  local atlas,keys,states,animSpeed = unpack(animationPack)
   local soldier = Entity.init(world)
   soldier.vector2 = Vector2.new(x,y)
-  soldier.sprite = Sprite.new(image)
+  soldier.animatingSprite = AnimatingSprite.new(atlas,keys,states,animSpeed)
   soldier.health = Health.new(hp)
   soldier.sentient = Sentient.new(sightRadius)
   soldier.movement = Movement.new(moveSpeed)
   soldier.offensive = Offensive.new(attackPower, attackRange, attackSpeed)
   soldier.teamtag = TeamTag.new(team)
+  soldier.state = State.new("idle")
   return soldier
 end
 

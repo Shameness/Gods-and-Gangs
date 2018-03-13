@@ -83,15 +83,34 @@ frame= one of the image of animation
 
 states are the name of the table keys in the keys (sorry for bad naming)
 ]]
-function AnimatingSprite.new(atlas,keys,states)
+function AnimatingSprite.new(atlas,keys,states,speed)
   local animSprite = {}
   animSprite.atlas = atlas
   animSprite.keys = keys
   animSprite.states = states
   animSprite.currentFrame = 1
   animSprite.currentState = states[1]
+  animSprite.delta = 0
+  animSprite.speed =speed
   return setmetatable(animSprite, AnimatingSprite_mt)
 end
+
+------ State -------
+State = {__class = "State"}
+State_mt = {__index = State}
+
+function State.new(state)
+  local state = {}
+  state.currentState = state
+  state.previousState = state
+  return setmetatable(state, State_mt)
+end
+
+function State:set(state)
+  self.previousState = self.currentState
+  self.currentState = state
+end
+
 
 ------- Armament --------
 --[[
@@ -113,7 +132,6 @@ Equipment = {__class = "Equipment"}
 Equipment_mt = {__index = Equipment}
 
 function Equipment.new(name,modifiers)
-  local
   local equipment = {}
   equipment.name = ""
   equipment.modifiers = modifiers

@@ -1,11 +1,11 @@
 local EbsModule = require "compsystem.ebs"
 local EntitiesModule = require "Entities"
 local SystemsModule = require "Systems"
+local AnimationsModule = require "Animations"
 
 
-
-local LEFT_SOLDIER_COUNT = 10
-local RIGHT_SOLDIER_COUNT = 10
+local LEFT_SOLDIER_COUNT = 30
+local RIGHT_SOLDIER_COUNT = 30
 
 function loadWorld()
   -- ebs variables --
@@ -16,10 +16,12 @@ function loadWorld()
   -- systems
   myWorld:add_system(AI.new())
   myWorld:add_system(Drawer.new())
-
+  myWorld:add_system(Animator.new())
 
   -- images
-  soldImg = love.graphics.newImage("dummy.png")
+  local soldAnim = SoldierAnimPack()
+
+
 
 
   --lookup tables
@@ -33,19 +35,19 @@ function loadWorld()
   myWorld.RightTeam = {}
 
   -- entities
-  local soldierComptypes = {"Vector2","Sprite","Health","Sentient","Movement","Offensive","TeamTag"}
+  local soldierComptypes = {"Vector2","AnimatingSprite","Health","Sentient","Movement","Offensive","TeamTag","State"}
 
   myWorld.testshit = nil
   for i = 1,LEFT_SOLDIER_COUNT do
     local hp = 25
-    local sightRadius = 25
+    local sightRadius = 500
     local moveSpeed = math.random(20,30)
-    local attackPower = math.random(2, 5)
+    local attackPower = math.random()
     local attackRange = 1
     local attackSpeed = math.random()*2
     local team = "LeftTeam"
     --new instance
-    local soldier = Soldier.new( myWorld, 100,(i*10)+100, soldImg, hp, sightRadius, moveSpeed,
+    local soldier = Soldier.new( myWorld, 100+(math.floor(i/10)*20),(i%10*20), soldAnim, hp, sightRadius, moveSpeed,
     attackPower,attackRange,attackSpeed,team )
     -- add its position to lookup table
     if i == 1 then myWorld.testshit = soldier end
@@ -57,13 +59,13 @@ function loadWorld()
 
   for i = 1,RIGHT_SOLDIER_COUNT do
     local hp = 25
-    local sightRadius = 25
+    local sightRadius = 500
     local moveSpeed = math.random(20,30)
-    local attackPower = math.random(3, 6)
+    local attackPower = math.random()
     local attackRange = 1
     local attackSpeed = math.random()*2
     local team = "RightTeam"
-    local soldier = Soldier.new(myWorld, 300,(i*10)+100, soldImg,hp,sightRadius,moveSpeed,
+    local soldier = Soldier.new(myWorld, 680,(i%10*20), soldAnim,hp,sightRadius,moveSpeed,
    attackPower,attackRange,attackSpeed,team  )
      table.insert(myWorld.RightTeam, soldier.vector2)
      -- table.insert(RightTeamEntities, soldier)
