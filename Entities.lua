@@ -16,3 +16,15 @@ function Soldier.new(world,x,y,image,hp,sightRadius,moveSpeed,attackPower,attack
   soldier.teamtag = TeamTag.new(team)
   return soldier
 end
+
+Weapon = {}
+
+function Weapon.new(world,parentId,animationPack,name,modifiers)
+  local atlas,keys,states = unpack(animationPack)
+  local weapon = Entity.init(world)
+  weapon.vector2 = Vector2.new(0,0)
+  weapon.parentEntity = ParentEntity.new(parentId)
+  weapon.animatingSprite = AnimatingSprite.new(atlas, keys, states)
+  weapon.equipment = Equipment.new(name, modifiers)
+  return weapon
+end

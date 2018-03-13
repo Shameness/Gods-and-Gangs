@@ -39,8 +39,8 @@ end
 -- end
 
 function Entity_mt:__newindex (key, value)
-  clstype = value.__class
-  wctypes = self._world.componenttypes(self._world)
+  local clstype = value.__class
+  local wctypes = self._world.componenttypes(self._world)
   if wctypes[clstype] == nil then
     self._world.add_componenttype(self._world,clstype)
   end
@@ -50,7 +50,7 @@ function Entity_mt:__newindex (key, value)
 end
 --deletes compoenent
 function Entity_mt:delComp(key)
-  ctype = self._world._componenttypes[key]
+  local ctype = self._world._componenttypes[key]
   assert(ctype, (self .. "doesn't has attribute " .. key))
   self._world.components[ctype][self] = nil
   assert(false,"Not implemented")
@@ -91,9 +91,9 @@ function World._system_is_valid(system)
 end
 
 function World:combined_components(comptypes)
-  comps = self.components
-  keysets = {} --1
-  valsets = {} --2
+  local comps = self.components
+  local keysets = {} --1
+  local valsets = {} --2
   for k,ctype in next,comptypes do table.insert(keysets,Set:new(comps[ctype])) end--1
   for k,ctype in next,comptypes do table.insert(valsets,comps[ctype]) end         --2
   local entities = keysets[1] --3

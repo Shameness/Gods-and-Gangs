@@ -34,7 +34,15 @@ function Vector2:normalize()
   return Vector2.new(x,y)
 end
 
+------- ParentEntity -------
+ParentEntity = {__class= "ParentEntity"}
+ParentEntity_mt = {__index = ParentEntity}
 
+function ParentEntity.new(parentId)
+  local parentEntity = {}
+  parentEntity.parentId = parentId
+  return setmetatable(parentEntity, ParentEntity_mt)
+end
 
 ------- Health -------
 Health = {__class = "Health"}
@@ -104,8 +112,11 @@ end
 Equipment = {__class = "Equipment"}
 Equipment_mt = {__index = Equipment}
 
-function Equipment.new()
+function Equipment.new(name,modifiers)
+  local
   local equipment = {}
+  equipment.name = ""
+  equipment.modifiers = modifiers
   return setmetatable(equipment, Equipment_mt)
 end
 
@@ -117,7 +128,7 @@ function Sentient.new(sightRadius)
   local sentient = {}
   sentient.sightRadius = sightRadius
   sentient.targetId = nil
-  sentient.predators = {}
+  sentient.canFlee = (math.random(1, 10) == math.random(1, 10))
   sentient.state = ""
   return setmetatable(sentient, Sentient_mt)
 end

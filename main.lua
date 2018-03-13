@@ -1,6 +1,8 @@
 local worldModule = require "myWorld"
 
 function love.load()
+  math.randomseed(os.time())
+  math.random(); math.random(); math.random()
   loadWorld()
 end
 

@@ -40,7 +40,7 @@ function loadWorld()
     local hp = 25
     local sightRadius = 25
     local moveSpeed = math.random(20,30)
-    local attackPower = math.random(3, 6)
+    local attackPower = math.random(2, 5)
     local attackRange = 1
     local attackSpeed = math.random()*2
     local team = "LeftTeam"

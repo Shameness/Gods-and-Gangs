@@ -61,13 +61,14 @@ function AI.process(world, components)
   for comps in coroutine.wrap(components) do
     local vector2, sentient, health, movement, offensive, teamTag = unpack(comps)
     if #comps == 0 then
-      goto continue
+      goto continue --Ducth Tape
     end
     local falledin = false;
     local searchResult = nil
     -- step 1 --
-    if health.hp == 2000 then
-      --==TO:DO==-- Flee
+    if sentient.canFlee and health.hp <= 6 then
+      --Flee
+      vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team]* -1 * movement.moveSpeed))
       goto continue
     end
 
