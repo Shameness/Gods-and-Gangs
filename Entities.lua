@@ -16,6 +16,7 @@ function Soldier.new(world,x,y,animationPack,hp,sightRadius,moveSpeed,attackPowe
   soldier.offensive = Offensive.new(attackPower, attackRange, attackSpeed)
   soldier.teamtag = TeamTag.new(team)
   soldier.state = State.new("idle")
+  soldier.armament = Armament.new()
   return soldier
 end
 

@@ -119,11 +119,11 @@ Represent Equipments
 Armament = {__class = "Armament"}
 Armament_mt = {__index = Armament }
 
-function Armament.new(top, bottom, weapon)
+function Armament.new()
   armament = {}
-  armament.top = top
-  armament.bottom = bottom
-  armament.weapon = weapon
+  -- armament.top = top
+  -- armament.bottom =
+  -- armament.weapon = "empty"
   return setmetatable(armament, Armament_mt)
 end
 

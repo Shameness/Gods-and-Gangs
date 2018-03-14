@@ -3,9 +3,9 @@ local EntitiesModule = require "Entities"
 local SystemsModule = require "Systems"
 local AnimationsModule = require "Animations"
 
-local COLUMN_SIZE = 28
-local LEFT_SOLDIER_COUNT = COLUMN_SIZE*5
-local RIGHT_SOLDIER_COUNT = COLUMN_SIZE*5
+local COLUMN_SIZE = 24
+local LEFT_SOLDIER_COUNT = COLUMN_SIZE*3
+local RIGHT_SOLDIER_COUNT = COLUMN_SIZE*3
 --local ROW_SIZE = COLUMN_SIZE
 local Y_GAP = 20
 local X_GAP = 30
@@ -22,7 +22,7 @@ function loadWorld()
 
   -- images
   local soldAnim = SoldierAnimPack()
-
+  local swordAnim = SwordAnimPack()
 
 
 
@@ -37,20 +37,23 @@ function loadWorld()
   myWorld.RightTeam = {}
 
   -- entities
-  local soldierComptypes = {"Vector2","AnimatingSprite","Health","Sentient","Movement","Offensive","TeamTag","State"}
+
+  local soldierComptypes = {"Vector2","AnimatingSprite","Health","Sentient","Movement","Offensive","TeamTag","State","Armament"}
 
   myWorld.testshit = nil
   for i = 0,LEFT_SOLDIER_COUNT-1 do
-    local hp = 25
+
+
+    local hp = 200
     local sightRadius = 100
     local moveSpeed = math.random(20,30)
+    soldAnim[4] = 0.15 * moveSpeed/20
     local attackPower = math.random()
-    local attackRange = 1
+    local attackRange = 50
     local attackSpeed = math.random()*2
     local team = "LeftTeam"
     local x =100+(math.floor(i/COLUMN_SIZE)*X_GAP)
     local y = ((i%COLUMN_SIZE)*Y_GAP)
-    print(x,y)
     --new instance
     local soldier = Soldier.new( myWorld,x,y,
      soldAnim, hp, sightRadius, moveSpeed,
@@ -58,17 +61,20 @@ function loadWorld()
     -- add its position to lookup table
     if i == 1 then myWorld.testshit = soldier end
     table.insert(myWorld.LeftTeam, soldier.vector2)
-    -- add its reference to another lookup table
-    -- table.insert(LeftTeamEntities, soldier)
+
+    --Armament--
+    local mSword = Weapon.new(myWorld,soldier._id,swordAnim,"Sword",{attackPower={mul,1.5}})
+    soldier.armament.weapon = mSword._id
   end
 
 
   for i = 0,RIGHT_SOLDIER_COUNT-1 do
-    local hp = 25
+    local hp = 200
     local sightRadius = 100
     local moveSpeed = math.random(20,30)
+    soldAnim[4] = 0.15 * moveSpeed/20
     local attackPower = math.random()
-    local attackRange = 1
+    local attackRange = 50
     local attackSpeed = math.random()*2
     local team = "RightTeam"
     local x = 680-(math.floor(i/COLUMN_SIZE)*X_GAP)
@@ -77,7 +83,9 @@ function loadWorld()
     soldAnim,hp,sightRadius,moveSpeed,
    attackPower,attackRange,attackSpeed,team  )
      table.insert(myWorld.RightTeam, soldier.vector2)
-     -- table.insert(RightTeamEntities, soldier)
+     --armament--
+     local mSword = Weapon.new(myWorld,soldier._id,swordAnim,"Sword",{attackPower={mul,1.5}})
+     soldier.armament.weapon = mSword._id
   end
   --Create Easy to read lookup tables
   myWorld.enemies.LeftTeam = myWorld.RightTeam

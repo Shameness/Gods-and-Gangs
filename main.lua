@@ -4,7 +4,6 @@ function love.load()
   math.randomseed(os.time())
   math.random(); math.random(); math.random()
   loadWorld()
-  soldierAtlas = love.graphics.newImage("assets/animationTemplate.png")
 end
 
 function love.update(dt)
@@ -12,6 +11,6 @@ function love.update(dt)
 end
 
 function love.draw()
-    myWorld:process()
-    love.graphics.print(love.timer.getFPS(),100,100)
+  myWorld:process()
+  love.graphics.print(love.timer.getFPS(),100,100)
 end

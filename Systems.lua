@@ -25,22 +25,17 @@ Animator_mt = {__index = Animator}
 function Animator.new()
   local animator = {}
   animator.is_applicator = true
-  animator.componenttypes = {"Vector2", "AnimatingSprite","State","TeamTag"}
+  animator.componenttypes = {"Vector2", "AnimatingSprite","State","TeamTag","Armament"}
   return setmetatable(animator, Animator_mt)
 end
 
 function Animator.process(world, components)
   for comps in coroutine.wrap(components) do
-    local vector2, animSprite, state,teamTag = unpack(comps)
+    local vector2, animSprite, state, teamTag, armament = unpack(comps)
     if state.currentState ~= state.previousState then
       animSprite.currentFrame = 1
     end
-    for k,v in next, animSprite.keys do
-      --print(k,v)
-      for l,m in next, v do
-        --print(l,m)
-      end
-    end
+
     animSprite.delta = animSprite.delta + love.timer.getDelta()
     if animSprite.delta > animSprite.speed then
       animSprite.delta = animSprite.delta - animSprite.speed
@@ -54,7 +49,20 @@ function Animator.process(world, components)
     end
     local flip = AI[teamTag.team]
     local trans = (flip/1) * 48
-    love.graphics.draw(animSprite.atlas, frameQuad, vector2.x, vector2.y,0,flip,0.8,trans+16)
+    --armament--
+    for k,equipmentId in next,armament do
+      local equipment = world.entityById[equipmentId]
+      local key = equipment.animatingsprite.keys[state.currentState]
+      local mFrameQuad = key[animSprite.currentFrame]
+      print(mFrameQuad)
+      local shifted = key.shifted
+      local xShift, yShift = 0,0
+      if shifted  then xShift = key.xShift ;yShift = key.yShift end
+      love.graphics.draw(equipment.animatingsprite.atlas,
+       mFrameQuad, vector2.x+(xShift*-flip), vector2.y+yShift,0,flip,1,trans+16)
+    end
+    love.graphics.draw(animSprite.atlas, frameQuad, vector2.x, vector2.y,0,flip,1,trans+16)
+
   end
 end
 
@@ -102,7 +110,7 @@ function AI.process(world, components)
           local targetPos = target.vector2
 
           if AI.inRange(vector2,targetPos,offensive.attackRange) then
-            state:set("idle")
+            state:set("attackUpperCut")
             targetKilled = world:damageEntity(target, offensive.attackPower*offensive.attackSpeed)
 
             if targetKilled then
