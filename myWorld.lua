@@ -5,7 +5,7 @@ local AnimationsModule = require "Animations"
 
 local COLUMN_SIZE = 5
 local LEFT_SOLDIER_COUNT = COLUMN_SIZE*3
-local RIGHT_SOLDIER_COUNT = COLUMN_SIZE*3
+local RIGHT_SOLDIER_COUNT = COLUMN_SIZE*8
 --local ROW_SIZE = COLUMN_SIZE
 local Y_GAP = 20
 local X_GAP = 30
@@ -24,6 +24,7 @@ function loadWorld()
   local soldAnim = SoldierAnimPack()
   local swordAnim = SwordAnimPack()
   local atomicSwordAnim = AtomicSwordAnimPack()
+  local bowAnim = CompoundBowAnimPack()
 
 
   --lookup tables
@@ -35,7 +36,7 @@ function loadWorld()
   myWorld.allies = {} --not used
   myWorld.LeftTeam = {}
   myWorld.RightTeam = {}
-  myWorld.attackType = {Sword="attackUpperCut",AtomicSword="attack2hUpperCut"}
+  myWorld.attackType = {Sword="attackUpperCut",AtomicSword="attack2hUpperCut",LongBow="attackShootArrow"}
 
   -- entities
 
@@ -49,6 +50,7 @@ function loadWorld()
   local getMoveSpeed = function() return math.random(20,30) end
   local getAttackPower = function() return math.random() end
   local MeleeRange = 25
+  local longRange = 250
   local getAttackSpeed = function() return math.random()*2 end
   local getX = function(addition,i) return addition+(math.floor(i/COLUMN_SIZE)*X_GAP) end
   local getY = function(i) return ((i%COLUMN_SIZE)*Y_GAP) end
@@ -60,7 +62,7 @@ function loadWorld()
   for i = 0,LEFT_SOLDIER_COUNT-1 do
 
     local weaponType = "Sword"
-    local x = getX(100,i)
+    local x = getX(200,i)
     local y = getY(i)
     local moveSpeed = getMoveSpeed()
     soldAnim[4] = 0.15 * moveSpeed/20
@@ -81,26 +83,30 @@ function loadWorld()
   end
 
 
-    
-    for i = #myWorld.LeftTeam, 5 do
-      local weaponType = "LongBow"
 
-      local x = getX(100,i)
-      local y = getY(i)
-      local moveSpeed = getMoveSpeed()
-      local soldAnim[4] = 0.15 * moveSpeed/20
-      local attackPower = getAttackPower()
-      local attackSpeed = getAttackSpeed()
-      local attackRange = longRange
+  for i = #myWorld.LeftTeam, #myWorld.LeftTeam+14 do
+    local weaponType = "LongBow"
 
-      local archer = Soldier.new(
-        myWorld,x,y,
-        archAnim, hp, sightRadius, moveSpeed,
-        attackPower, attackRange, attackSpeed, team
-      )
+    local x = getX(0,i)
+    local y = getY(i)
+    local moveSpeed = getMoveSpeed()
+    soldAnim[4] = 0.15 * moveSpeed/20
+    local attackPower = getAttackPower()
+    local attackSpeed = getAttackSpeed()
+    local attackRange = longRange
+    local mSightRadius = attackRange + 100
 
-      table.insert(myWorld.LeftTeam, soldier.vector2)
-    end
+    local archer = Soldier.new(
+      myWorld,x,y,
+      soldAnim, hp, mSightRadius, moveSpeed,
+      attackPower, attackRange, attackSpeed, team
+    )
+
+    table.insert(myWorld.LeftTeam, archer.vector2)
+
+    local mBow = Weapon.new(myWorld,archer._id,bowAnim,weaponType,{attackPower={mul,1.5}})
+    archer.armament.weapon = mBow._id -- omg line
+  end
 
 ------ Right Team -----
 
