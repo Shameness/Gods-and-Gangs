@@ -4,7 +4,7 @@ local ComponentsModule = require "Components"
 Soldier = {}
 --Soldier_mt = {__index = Soldier}
 
-function Soldier.new(world,x,y,animationPack,hp,sightRadius,moveSpeed,attackPower,attackRange,attackSpeed,team)
+function Soldier.new(world,x,y,animationPack,hp,sightRadius,moveSpeed,attackPower,attackRange,attackSpeed,team,armament)
   --comps
   local atlas,keys,states,animSpeed = unpack(animationPack)
   local soldier = Entity.init(world)
@@ -16,7 +16,7 @@ function Soldier.new(world,x,y,animationPack,hp,sightRadius,moveSpeed,attackPowe
   soldier.offensive = Offensive.new(attackPower, attackRange, attackSpeed)
   soldier.teamtag = TeamTag.new(team)
   soldier.state = State.new("idle")
-  soldier.armament = Armament.new()
+  soldier.armament = Armament.new(armament)
   return soldier
 end
 

@@ -6,7 +6,7 @@ local frameWidth = 32
 local frameHeight = 64
 local atlashWidth, atlasHeight = soldierAtlas:getDimensions() local soldierStates = {"idle","walking","attackUpperCut"}
 local speed = 0.15
-for i=0, 32 do
+for i=0, 70 do
   local x = i*frameWidth % atlashWidth
   local y = frameHeight * math.floor(i * frameWidth/atlashWidth)
   soldierFrames[i] = love.graphics.newQuad(x, y, frameWidth, frameHeight, soldierAtlas:getDimensions())
@@ -34,6 +34,13 @@ attackUpperCut=
     soldierFrames[22],
     soldierFrames[23]
 
+  },
+  attack2hUpperCut=
+  {
+    soldierFrames[61],
+    soldierFrames[62],
+    soldierFrames[63],
+    soldierFrames[64]
   }
 }
 function SoldierAnimPack()
@@ -41,18 +48,18 @@ function SoldierAnimPack()
 end
 
 
---Sword--
+-------- Sword ----------
 
 --cutdown swords are shifted 16 pixel to the left
 local swordAtlas = love.graphics.newImage("assets/weaponExtended.png")
 
 local swordFrames = {}
-frameWidth = 64 -- importent
+local frameWidth = 64 -- importent
 local frameHeight = 64
 local atlashWidth, atlasHeight = swordAtlas:getDimensions()
 local swordStates = {"idle","walking","attackUpperCut"}
 -- local speed = 0.15
-for i=0, 32 do
+for i=0, 70 do
   local x = i*frameWidth % atlashWidth
   local y = frameHeight * math.floor(i * frameWidth/atlashWidth)
 
@@ -86,4 +93,39 @@ swordKeys = {
 }
 function SwordAnimPack()
   return {swordAtlas,swordKeys,swordStates,speed}
+end
+
+
+-------- atomicSword ----------
+
+local atomicSwordAtlas = love.graphics.newImage("assets/AtmoiacSwordAnim.png")
+local frameWidth = 64+16 -- 80
+local frameHeight = 64
+atomicSwordFrames = {}
+function atomicSwordFrames.__index(table,arg)
+  local x = frameWidth  * (arg%10)
+  local y = frameHeight * (math.floor(arg/10))
+
+  return love.graphics.newQuad(x,y,frameWidth,frameHeight,atomicSwordAtlas:getDimensions())
+end
+setmetatable(atomicSwordFrames, atomicSwordFrames)
+
+
+
+local atomicSwordKeys = {
+  idle = swordKeys.idle,      ---  TO:DO change this with new atomicSwordFrames
+  walking = swordKeys.walking,---
+  attack2hUpperCut={
+    atomicSwordFrames[60],
+    atomicSwordFrames[61],
+    atomicSwordFrames[62],
+    atomicSwordFrames[63],
+    shifted = true,
+    xShift = 22,
+    yShift = -8
+  }
+}
+local atomicSwordStates = {"idle","walking","attack2hUpperCut"}
+function AtomicSwordAnimPack()
+  return {atomicSwordAtlas,atomicSwordKeys,atomicSwordStates,speed}
 end

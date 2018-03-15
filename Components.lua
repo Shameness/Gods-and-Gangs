@@ -99,10 +99,10 @@ end
 State = {__class = "State"}
 State_mt = {__index = State}
 
-function State.new(state)
+function State.new(mState)
   local state = {}
-  state.currentState = state
-  state.previousState = state
+  state.currentState = mState
+  state.previousState = mState
   return setmetatable(state, State_mt)
 end
 
@@ -119,11 +119,10 @@ Represent Equipments
 Armament = {__class = "Armament"}
 Armament_mt = {__index = Armament }
 
-function Armament.new()
+function Armament.new(arms)
   armament = {}
   -- armament.top = top
   -- armament.bottom =
-  -- armament.weapon = "empty"
   return setmetatable(armament, Armament_mt)
 end
 
@@ -131,10 +130,11 @@ end
 Equipment = {__class = "Equipment"}
 Equipment_mt = {__index = Equipment}
 
-function Equipment.new(name,modifiers)
+function Equipment.new(name,modifiers,style)
   local equipment = {}
-  equipment.name = ""
+  equipment.name = name
   equipment.modifiers = modifiers
+  equipment.style = style
   return setmetatable(equipment, Equipment_mt)
 end
 

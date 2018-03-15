@@ -18,6 +18,7 @@ function Drawer.process(world, components)
   end
 end
 
+
 -------- Animator --------
 Animator = {}
 Animator_mt = {__index = Animator}
@@ -41,8 +42,9 @@ function Animator.process(world, components)
       animSprite.delta = animSprite.delta - animSprite.speed
       animSprite.currentFrame = animSprite.currentFrame + 1
     end
---    print(animSprite.keys[state.currentState][animSprite.currentFrame])
     local frameQuad = animSprite.keys[state.currentState][animSprite.currentFrame]
+
+
     if not frameQuad then
       animSprite.currentFrame = 1
       frameQuad = animSprite.keys[state.currentState][animSprite.currentFrame]
@@ -54,7 +56,6 @@ function Animator.process(world, components)
       local equipment = world.entityById[equipmentId]
       local key = equipment.animatingsprite.keys[state.currentState]
       local mFrameQuad = key[animSprite.currentFrame]
-      print(mFrameQuad)
       local shifted = key.shifted
       local xShift, yShift = 0,0
       if shifted  then xShift = key.xShift ;yShift = key.yShift end
@@ -73,7 +74,7 @@ AI_mt = {__index = AI}
 function AI.new()
   local ai = {}
   ai.is_applicator = true
-  ai.componenttypes = {"Vector2", "Sentient", "Health", "Movement", "Offensive", "TeamTag","State"}
+  ai.componenttypes = {"Vector2", "Sentient", "Health", "Movement", "Offensive", "TeamTag","State","Armament"}
   return setmetatable(ai, AI_mt)
 end
 
@@ -83,24 +84,39 @@ function AI.inRange(pos, v, radius)
   return radius >= direction:length()
 end
 
-local errorcount = 0
-local killeyCount = 0
-local neturalCount = 0
+--[[
+Decision Tree for all entities that has corresponding components(see AI.new for componenttypes)
+Utilizes 'goto countinue' to skip rest of decision tree for current etity
+vvv= Decision tree steps, one step occurs one at a time (for now :) =vvv
+  -- step 1 -- decide whether flee or not to
+  -- step 2 -- ::checkHasTarget::
+    -- step 2.1 -- ::checkAttackRange::
+    -- step 2.2 -- ::walkToTarget::
+  -- step 3  -- ::checkSightRange::
+^^^=                                                                =^^^
+
+]]
 function AI.process(world, components)
   world:sort()
   for comps in coroutine.wrap(components) do
-    local vector2, sentient, health, movement, offensive, teamTag, state = unpack(comps)
+    local vector2, sentient, health, movement, offensive, teamTag, state, armament = unpack(comps)
+    --a small ducttape b/c sometimes the coroutine countinues to read dead entities's aged comps
     if #comps == 0 then
       goto continue --Ducth Tape
     end
+
+    --local variables for look and find, needs to be defined before any goto statement
     local falledin = false;
     local searchResult = nil
-    -- step 1 --
-    if sentient.canFlee and health.hp > 600 then
-      --Flee
-      vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team]* -1 * movement.moveSpeed))
-      state:set("walking")
-      goto continue
+
+    -- step 1 -- decide whether flee or not to
+    if sentient.canFlee and health.hp < 100 then
+      if sentient.target ~= nil and world.entityById[sentient.target].health.hp > 100 then
+        --Flee
+        vector2.x = vector2.x + (love.timer.getDelta() * (AI[teamTag.team]* -1 * movement.moveSpeed))
+        state:set("walking")
+        goto continue
+      end
     end
 
     -- step 2 --
@@ -108,17 +124,20 @@ function AI.process(world, components)
     if sentient.targetId and world.entityById[sentient.targetId] then
           local target = world.entityById[sentient.targetId]
           local targetPos = target.vector2
-
+          -- step 2.1 --
+          --::checkAttackRange::
           if AI.inRange(vector2,targetPos,offensive.attackRange) then
-            state:set("attackUpperCut")
+            local weaponType = world.entityById[armament.weapon].equipment.name
+            state:set( world.attackType[weaponType])
             targetKilled = world:damageEntity(target, offensive.attackPower*offensive.attackSpeed)
 
             if targetKilled then
-              killeyCount = killeyCount + 1
               sentient.targetId = nil
               target = nil
             end
           else
+          -- step 2.2 --
+          --::walkToTarget::
             state:set("walking")
             res = vector2 + ((targetPos - vector2):normalize() * movement.moveSpeed * love.timer.getDelta())
             vector2.x = res.x
@@ -128,8 +147,9 @@ function AI.process(world, components)
           end
     else
 
-    -- step 3 a --
+    -- step 3  --
     --::checkSightRange::--
+    --below fast checks sightRadius, after fastcheck is successful its falls to next step of detalied lookup
       for k,v in next,world.enemies[teamTag.team] do
         if not falledin then
           if math.abs(vector2.x - v.x) <= sentient.sightRadius then
@@ -152,7 +172,7 @@ function AI.process(world, components)
       if searchResult ~= nil then
         --update targetId with result
         sentient.targetId = searchResult
-
+      --Just walk forward if there is no close enemy
       else
         state:set("walking")
         --::GO FORWARD::--
@@ -160,8 +180,7 @@ function AI.process(world, components)
         --goto continue -- Important
       end
     end
-    -- step 3 b --
-    --::checkAttackRange::
+
 
     ::continue::
   end -- for loop

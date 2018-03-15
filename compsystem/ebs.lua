@@ -51,7 +51,7 @@ end
 --deletes compoenent
 function Entity_mt:delComp(key)
   local ctype = self._world._componenttypes[key]
-  assert(ctype, (self .. "doesn't has attribute " .. key))
+  assert(ctype, (self .. "doesn't have attribute " .. key))
   self._world.components[ctype][self] = nil
   assert(false,"Not implemented")
 end

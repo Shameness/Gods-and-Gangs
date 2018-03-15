@@ -3,7 +3,7 @@ local EntitiesModule = require "Entities"
 local SystemsModule = require "Systems"
 local AnimationsModule = require "Animations"
 
-local COLUMN_SIZE = 24
+local COLUMN_SIZE = 5
 local LEFT_SOLDIER_COUNT = COLUMN_SIZE*3
 local RIGHT_SOLDIER_COUNT = COLUMN_SIZE*3
 --local ROW_SIZE = COLUMN_SIZE
@@ -23,7 +23,7 @@ function loadWorld()
   -- images
   local soldAnim = SoldierAnimPack()
   local swordAnim = SwordAnimPack()
-
+  local atomicSwordAnim = AtomicSwordAnimPack()
 
 
   --lookup tables
@@ -35,58 +35,100 @@ function loadWorld()
   myWorld.allies = {} --not used
   myWorld.LeftTeam = {}
   myWorld.RightTeam = {}
+  myWorld.attackType = {Sword="attackUpperCut",AtomicSword="attack2hUpperCut"}
 
   -- entities
 
   local soldierComptypes = {"Vector2","AnimatingSprite","Health","Sentient","Movement","Offensive","TeamTag","State","Armament"}
 
-  myWorld.testshit = nil
+
+-- Entity Creation function ans constants --
+  local hp = 200
+  local sightRadius = 100
+
+  local getMoveSpeed = function() return math.random(20,30) end
+  local getAttackPower = function() return math.random() end
+  local MeleeRange = 25
+  local getAttackSpeed = function() return math.random()*2 end
+  local getX = function(addition,i) return addition+(math.floor(i/COLUMN_SIZE)*X_GAP) end
+  local getY = function(i) return ((i%COLUMN_SIZE)*Y_GAP) end
+-- Entity Creation function ans constants --
+
+------ Left Team -----
+  local team = "LeftTeam"
+
   for i = 0,LEFT_SOLDIER_COUNT-1 do
 
-
-    local hp = 200
-    local sightRadius = 100
-    local moveSpeed = math.random(20,30)
+    local weaponType = "Sword"
+    local x = getX(100,i)
+    local y = getY(i)
+    local moveSpeed = getMoveSpeed()
     soldAnim[4] = 0.15 * moveSpeed/20
-    local attackPower = math.random()
-    local attackRange = 50
-    local attackSpeed = math.random()*2
-    local team = "LeftTeam"
-    local x =100+(math.floor(i/COLUMN_SIZE)*X_GAP)
-    local y = ((i%COLUMN_SIZE)*Y_GAP)
-    --new instance
-    local soldier = Soldier.new( myWorld,x,y,
+    local attackPower = getAttackPower()
+    local attackSpeed = getAttackSpeed()
+    local attackRange = MeleeRange
+
+
+    local soldier = Soldier.new( myWorld,x,y,           --new instance
      soldAnim, hp, sightRadius, moveSpeed,
     attackPower,attackRange,attackSpeed,team )
-    -- add its position to lookup table
-    if i == 1 then myWorld.testshit = soldier end
-    table.insert(myWorld.LeftTeam, soldier.vector2)
+
+    table.insert(myWorld.LeftTeam, soldier.vector2)     -- add its position to lookup table
 
     --Armament--
-    local mSword = Weapon.new(myWorld,soldier._id,swordAnim,"Sword",{attackPower={mul,1.5}})
+    local mSword = Weapon.new(myWorld,soldier._id,swordAnim,weaponType,{attackPower={mul,1.5}})
+    soldier.armament.weapon = mSword._id -- omg line
+  end
+
+
+    
+    for i = #myWorld.LeftTeam, 5 do
+      local weaponType = "LongBow"
+
+      local x = getX(100,i)
+      local y = getY(i)
+      local moveSpeed = getMoveSpeed()
+      local soldAnim[4] = 0.15 * moveSpeed/20
+      local attackPower = getAttackPower()
+      local attackSpeed = getAttackSpeed()
+      local attackRange = longRange
+
+      local archer = Soldier.new(
+        myWorld,x,y,
+        archAnim, hp, sightRadius, moveSpeed,
+        attackPower, attackRange, attackSpeed, team
+      )
+
+      table.insert(myWorld.LeftTeam, soldier.vector2)
+    end
+
+------ Right Team -----
+
+local team = "RightTeam"
+  for i = 0,RIGHT_SOLDIER_COUNT-1 do
+
+    local weaponType = "AtomicSword"
+    local x = getX(700,i)
+    local y = getY(i)
+
+    local moveSpeed = getMoveSpeed()
+    soldAnim[4] = 0.15 * moveSpeed/20
+    local attackPower = getAttackPower()
+    local attackSpeed = getAttackSpeed()
+    local attackRange = MeleeRange
+
+    local soldier = Soldier.new(myWorld,x,y,
+    soldAnim,hp,sightRadius,moveSpeed,
+    attackPower,attackRange,attackSpeed,team)
+
+    table.insert(myWorld.RightTeam, soldier.vector2)
+
+     --armament--
+    local mSword = Weapon.new(myWorld,soldier._id,atomicSwordAnim,weaponType,{attackPower={mul,1.5}})
     soldier.armament.weapon = mSword._id
   end
 
 
-  for i = 0,RIGHT_SOLDIER_COUNT-1 do
-    local hp = 200
-    local sightRadius = 100
-    local moveSpeed = math.random(20,30)
-    soldAnim[4] = 0.15 * moveSpeed/20
-    local attackPower = math.random()
-    local attackRange = 50
-    local attackSpeed = math.random()*2
-    local team = "RightTeam"
-    local x = 680-(math.floor(i/COLUMN_SIZE)*X_GAP)
-    local y = ((i%COLUMN_SIZE)*Y_GAP)
-    local soldier = Soldier.new(myWorld,x,y,
-    soldAnim,hp,sightRadius,moveSpeed,
-   attackPower,attackRange,attackSpeed,team  )
-     table.insert(myWorld.RightTeam, soldier.vector2)
-     --armament--
-     local mSword = Weapon.new(myWorld,soldier._id,swordAnim,"Sword",{attackPower={mul,1.5}})
-     soldier.armament.weapon = mSword._id
-  end
   --Create Easy to read lookup tables
   myWorld.enemies.LeftTeam = myWorld.RightTeam
   myWorld.enemies.RightTeam = myWorld.LeftTeam
