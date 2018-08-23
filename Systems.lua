@@ -127,6 +127,7 @@ function AI.process(world, components)
           -- step 2.1 --
           --::checkAttackRange::
           if AI.inRange(vector2,targetPos,offensive.attackRange) then
+            
             local weaponType = world.entityById[armament.weapon].equipment.name
             state:set( world.attackType[weaponType])
             targetKilled = world:damageEntity(target, offensive.attackPower*offensive.attackSpeed)

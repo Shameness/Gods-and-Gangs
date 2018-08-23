@@ -58,7 +58,7 @@ function loadWorld()
 
 ------ Left Team -----
   local team = "LeftTeam"
-
+  --MELEE
   for i = 0,LEFT_SOLDIER_COUNT-1 do
 
     local weaponType = "Sword"
@@ -71,9 +71,11 @@ function loadWorld()
     local attackRange = MeleeRange
 
 
-    local soldier = Soldier.new( myWorld,x,y,           --new instance
+    local soldier = Soldier.new( --new instance
+     myWorld,x,y,
      soldAnim, hp, sightRadius, moveSpeed,
-    attackPower,attackRange,attackSpeed,team )
+     attackPower, attackRange, attackSpeed, team
+    )
 
     table.insert(myWorld.LeftTeam, soldier.vector2)     -- add its position to lookup table
 
@@ -83,7 +85,7 @@ function loadWorld()
   end
 
 
-
+  --ARCHERS
   for i = #myWorld.LeftTeam, #myWorld.LeftTeam+14 do
     local weaponType = "LongBow"
 
@@ -114,7 +116,7 @@ local team = "RightTeam"
   for i = 0,RIGHT_SOLDIER_COUNT-1 do
 
     local weaponType = "AtomicSword"
-    local x = getX(700,i)
+    local x = getX(500,i)
     local y = getY(i)
 
     local moveSpeed = getMoveSpeed()
@@ -132,6 +134,30 @@ local team = "RightTeam"
      --armament--
     local mSword = Weapon.new(myWorld,soldier._id,atomicSwordAnim,weaponType,{attackPower={mul,1.5}})
     soldier.armament.weapon = mSword._id
+  end
+
+  for i = #myWorld.RightTeam, #myWorld.RightTeam+9 do
+    local weaponType = "LongBow"
+
+    local x = getX(600,i)
+    local y = getY(i)
+    local moveSpeed = getMoveSpeed()
+    soldAnim[4] = 0.15 * moveSpeed/20
+    local attackPower = getAttackPower()
+    local attackSpeed = getAttackSpeed()
+    local attackRange = longRange
+    local mSightRadius = attackRange + 100
+
+    local archer = Soldier.new(
+      myWorld,x,y,
+      soldAnim, hp, mSightRadius, moveSpeed,
+      attackPower, attackRange, attackSpeed, team
+    )
+
+    table.insert(myWorld.RightTeam, archer.vector2)
+
+    local mBow = Weapon.new(myWorld,archer._id,bowAnim,weaponType,{attackPower={mul,1.5}})
+    archer.armament.weapon = mBow._id -- omg line
   end
 
 

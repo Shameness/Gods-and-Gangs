@@ -1,18 +1,22 @@
-currentPoss = {}
-for i = 0, 10 do
-  res = i * 32
-  table.insert(currentPoss,res)
+
+function ab (num1,num2)
+  local gdc = 1
+  local x = num1
+  local y = num2
+  i = 0
+  while i < math.min(x,y) do
+    i = i + 1
+    for j = 2, math.min(x,y) do
+      if x % j == 0 and y % j == 0 then
+         gdc = gdc * j
+         x = x / j
+         y = y / j
+         break
+       end
+    end
+
+  end
+  return gdc
 end
 
-targetPoss = {}
-for i = 0,10 do
-  res = i * 64
-  table.insert(targetPoss,res)
-end
-
-trans = {}
-for i = 1, 7 do
-  res = targetPoss[i] - currentPoss[i]
-  table.insert(trans,res)
-  print(i,res)
-end
+print(ab(132,99))
